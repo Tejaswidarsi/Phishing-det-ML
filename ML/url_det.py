@@ -16,14 +16,11 @@ from sklearn.preprocessing import StandardScaler
 from requests.exceptions import MissingSchema
 
 
-# ==============================================
-# ✅ Configure Logging
-# ==============================================
+
+#  Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# ==============================================
-# ✅ Load & Process Phishing Email Dataset
-# ==============================================
+# Load & Process Phishing Email Dataset
 logging.info("Loading phishing email dataset...")
 
 try:
@@ -38,7 +35,7 @@ try:
     df = df[required_columns].copy()
     df.columns = df.columns.str.strip()
 
-    # ✅ Handle missing values
+    #  Handle missing values
     df['Email Text'] = df['Email Text'].fillna('')
     df['Email Type'] = df['Email Type'].map({'Safe Email': 0, 'Phishing Email': 1})
     df.dropna(inplace=True)
@@ -47,7 +44,7 @@ except Exception as e:
     logging.error(f"Error loading email dataset: {e}")
     exit()
 
-# ✅ Clean email text
+# Clean email text
 def clean_text(text):
     """Clean email text by removing unwanted characters."""
     if not isinstance(text, str):
@@ -61,7 +58,7 @@ def clean_text(text):
 
 df['cleaned_text'] = df['Email Text'].apply(clean_text)
 
-# ✅ Train-Test Split & TF-IDF Vectorization
+# Train-Test Split & TF-IDF Vectorization
 X_email = df['cleaned_text']
 y_email = df['Email Type']
 
@@ -73,32 +70,31 @@ vectorizer = TfidfVectorizer(stop_words='english', max_features=5000, ngram_rang
 X_train_email_tfidf = vectorizer.fit_transform(X_train_email)
 X_test_email_tfidf = vectorizer.transform(X_test_email)
 
-# ✅ Train Email Classification Model
+# Train Email Classification Model
 email_model = LogisticRegression(max_iter=200, n_jobs=-1)
 email_model.fit(X_train_email_tfidf, y_train_email)
 
-# ✅ Evaluate Email Model
+# Evaluate Email Model
 y_pred_email = email_model.predict(X_test_email_tfidf)
-logging.info("\n📊 Email Model Performance:")
-logging.info(f"✅ Accuracy: {accuracy_score(y_test_email, y_pred_email)}")
-logging.info(f"✅ Classification Report:\n{classification_report(y_test_email, y_pred_email)}")
+logging.info("\n Email Model Performance:")
+logging.info(f" Accuracy: {accuracy_score(y_test_email, y_pred_email)}")
+logging.info(f" Classification Report:\n{classification_report(y_test_email, y_pred_email)}")
 
-# ✅ Save Email Model & Vectorizer
+# Save Email Model & Vectorizer
 os.makedirs("models", exist_ok=True)
 joblib.dump(email_model, "models/email_model.pkl")
 joblib.dump(vectorizer, "models/email_vectorizer.pkl")
 
-# ✅ Email Prediction Function
+# Email Prediction Function
 def predict_email(email):
     """Predict if an email is phishing or safe."""
     email_cleaned = clean_text(email)
     email_tfidf = vectorizer.transform([email_cleaned])
     prediction = email_model.predict(email_tfidf)[0]
-    return "Phishing Content 🚨" if prediction == 1 else "Safe Content ✅"
+    return "Phishing Content " if prediction == 1 else "Safe Content "
 
-# ==============================================
-# ✅ Load Pretrained Models
-# ==============================================
+
+# Load Pretrained Models
 df = pd.read_csv("C:\\Users\\HP\\Desktop\\Phishing\\files\\url.csv")
 df.drop_duplicates(inplace=True)
 
@@ -109,7 +105,7 @@ df["TLD"] = df["TLD"].astype("category").cat.codes
 
 # Save cleaned dataset (this is correct)
 df.to_csv("cleaned_url_dataset.csv", index=False)
-print("✅ Data cleaned and saved successfully!")
+print("Data cleaned and saved successfully!")
 
 X = df.drop(columns=["label"])  # Features
 y = df["label"]  # Labels (Phishing/Legitimate)
@@ -179,38 +175,35 @@ def extract_features(url):
 
     return np.array(list(features.values())).reshape(1, -1)
 
-
-# ==============================================
-# ✅ Analyze Website Content & Send to Email Model
-# ==============================================
+#  Analyze Website Content & Send to Email Model
 def analyze_website(url):
     """Fetches and analyzes website content for phishing indicators."""
     try:
         response = requests.get(url, timeout=5)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # ✅ Extract website text
+        # Extract website text
         page_text = soup.get_text().lower()
 
-        # ✅ Check for suspicious keywords
+        #  Check for suspicious keywords
         suspicious_keywords = ["login", "verify", "bank", "account", "password", "update", "click here"]
         keyword_count = sum(page_text.count(keyword) for keyword in suspicious_keywords)
 
-        # ✅ Email Model Prediction
+        # Email Model Prediction
         email_prediction = predict_email(page_text) if email_model else "Email model unavailable."
 
-        # ✅ Heuristic-based scoring
+        # Heuristic-based scoring
         if keyword_count > 3:
-            return f"🔴 HIGH RISK: Suspicious content detected! ({email_prediction})"
+            return f" HIGH RISK: Suspicious content detected! ({email_prediction})"
         elif keyword_count > 1:
-            return f"🟡MODERATE RISK: Some suspicious keywords found. ({email_prediction})"
+            return f" MODERATE RISK: Some suspicious keywords found. ({email_prediction})"
         else:
-            return f"🟢LOW RISK: No major phishing indicators. ({email_prediction})"
+            return f" LOW RISK: No major phishing indicators. ({email_prediction})"
 
     except MissingSchema:
-        return "⚠️ Invalid URL format! Please enter a valid URL."
+        return "Invalid URL format! Please enter a valid URL."
     except requests.RequestException:
-        return "❌ Unable to fetch website content."
+        return "Unable to fetch website content."
     
 
 
@@ -232,6 +225,7 @@ def predict_url(url):
 
 
 
-# ✅ Test Example
+# Test Example
 test = predict_url("https://web.whatsapp.com/")
+
 print(test)
