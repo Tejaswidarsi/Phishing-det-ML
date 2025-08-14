@@ -17,7 +17,6 @@ from requests.exceptions import MissingSchema
 
 
 
-#  Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Load & Process Phishing Email Dataset
@@ -229,3 +228,4 @@ def predict_url(url):
 test = predict_url("https://web.whatsapp.com/")
 
 print(test)
+
