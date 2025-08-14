@@ -100,7 +100,7 @@ const EmailPhishing = () => {
             return;
           }
 
-          const messages = response.data.messages.slice(0, 14); // Get latest 15 emails
+          const messages = response.data.messages.slice(0, 20); // Get latest 20 emails
 
           // Fetch and analyze each email
           const emailDetails = await Promise.all(
@@ -151,5 +151,6 @@ const EmailPhishing = () => {
     </div>
   );
 };
+
 
 export default EmailPhishing;
